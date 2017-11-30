@@ -16,20 +16,49 @@ import type {LanguageService} from '../../nuclide-language-service/lib/LanguageS
 
 import typeof * as JsService from '../../nuclide-js-imports-client-rpc/lib/JsImportsService';
 
+import {applyTextEditsToBuffer} from 'nuclide-commons-atom/text-edit';
 import {
   AtomLanguageService,
   getHostServices,
 } from '../../nuclide-language-service';
 import {NullLanguageService} from '../../nuclide-language-service-rpc';
-import {getNotifierByConnection} from '../../nuclide-open-files';
+import {
+  getNotifierByConnection,
+  getFileVersionOfEditor,
+} from '../../nuclide-open-files';
 import {getServiceByConnection} from '../../nuclide-remote-connection';
 import featureConfig from 'nuclide-commons-atom/feature-config';
 
 const JS_IMPORTS_SERVICE_NAME = 'JSAutoImportsService';
 
 export function activate() {
-  const jsImportLanguageService = createLanguageService();
-  jsImportLanguageService.then(value => value.activate());
+  const jsImportLanguageServiceCreate = createLanguageService();
+  jsImportLanguageServiceCreate.then(value => value.activate());
+  atom.commands.add(
+    'atom-text-editor',
+    'nuclide-js-imports:auto-require',
+    async () => {
+      const jsImportLanguageService = await (jsImportLanguageServiceCreate: any);
+      const editor = atom.workspace.getActiveTextEditor();
+      if (editor == null) {
+        return;
+      }
+      const fileVersion = await getFileVersionOfEditor(editor);
+      const range = editor.getBuffer().getRange();
+      const languageService = await jsImportLanguageService.getLanguageServiceForUri(
+        editor.getPath(),
+      );
+      const result = await languageService.formatSource(fileVersion, range, {
+        fixImports: true,
+      });
+      console.log(result);
+      if (result != null) {
+        if (!applyTextEditsToBuffer(editor.getBuffer(), result)) {
+          throw new Error('Could not apply edits to text buffer.');
+        }
+      }
+    },
+  );
 }
 
 async function connectToJSImportsService(

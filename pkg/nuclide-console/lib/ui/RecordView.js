@@ -82,8 +82,12 @@ export default class RecordView extends React.Component<Props> {
       return this._renderNestedValueComponent(displayableRecord, provider);
     } else {
       // If there's not text, use a space to make sure the row doesn't collapse.
-      const text = record.text || ' ';
-      return <pre>{parseText(text)}</pre>;
+      try {
+        const text = record.text || ' ';
+        return <pre>{parseText(text)}</pre>;
+      } catch (e) {
+        console.log(record.text);
+      }
     }
   }
 

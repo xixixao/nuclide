@@ -93,6 +93,7 @@ connection.onInitialize((params): InitializeResult => {
         triggerCharacters: getAllTriggerCharacters(),
       },
       codeActionProvider: true,
+      documentFormattingProvider: true,
       executeCommandProvider: Array.from(Object.keys(CommandExecutor.COMMANDS)),
     },
   };
@@ -170,6 +171,15 @@ connection.onExecuteCommand((params: ExecuteCommandParams): any => {
   const {command, arguments: args} = params;
   logger.debug('Executing command', command, 'with args', args);
   commandExecuter.executeCommand(command, args);
+});
+
+connection.onDocumentFormatting(params => {
+  if (params.options.fixImports !== true) {
+    return Promise.resolve([]);
+  }
+  return commandExecuter.executeCommand('fixImports', [
+    nuclideUri.uriToNuclideUri(params.textDocument.uri),
+  ]);
 });
 
 documents.listen(connection);

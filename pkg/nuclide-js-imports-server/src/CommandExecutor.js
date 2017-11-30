@@ -29,6 +29,7 @@ import {
 } from './utils/util';
 
 export type AddImportCommandParams = [JSExport, NuclideUri];
+export type FixImportsCommandParams = [NuclideUri];
 
 type EditParams = {
   row: number,
@@ -41,6 +42,7 @@ type EditParams = {
 export class CommandExecutor {
   static COMMANDS = {
     addImport: true,
+    fixImports: true,
   };
 
   connection: IConnection;
@@ -61,6 +63,8 @@ export class CommandExecutor {
     switch (command) {
       case 'addImport':
         return this._addImport((args: AddImportCommandParams));
+      case 'fixImports':
+        return this._fixImports((args: FixImportsCommandParams));
       default:
         (command: empty);
         throw new Error('Unexpected Command');
@@ -108,6 +112,37 @@ export class CommandExecutor {
       ({changes, documentChanges}: WorkspaceEdit),
     );
   }
+
+  _fixImports(args: FixImportsCommandParams): Promise<Array<TextEdit>> {
+    const [fileMissingImport] = args;
+    const ast = parseFile(
+      this.documents
+        .get(nuclideUri.nuclideUriToUri(fileMissingImport))
+        .getText(),
+    );
+    if (ast == null || ast.program == null || ast.program.body == null) {
+      // File could not be parsed. If this is reached, we shouldn't be applying
+      // addImport anyways since the file must have changed from when we computed
+      // the CodeAction.
+      return Promise.resolve([]);
+    }
+    const {body} = ast.program;
+    // return getEditsForImport(
+    //   this.importFormatter,
+    //   fileMissingImport,
+    //   missingImport,
+    //   body,
+    // );
+    return [
+      {
+        range: {
+          start: 0,
+          end: 0,
+        },
+        newText: 'Hello world',
+      },
+    ];
+  }
 }
 
 export function getEditsForImport(
@@ -142,8 +177,8 @@ function createEdit(
 ): TextEdit {
   return {
     range: atomRangeToLSPRange(new Range([row, column], [row, column])),
+    // We're always going to insert before any trailing commas, so it's safe to always add one.
     newText:
-      // We're always going to insert before any trailing commas, so it's safe to always add one.
       (column === 0 ? '' : ',') +
       '\n'.repeat(newLinesBefore) +
       ' '.repeat(indent || 0) +
