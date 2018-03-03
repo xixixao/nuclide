@@ -56,6 +56,14 @@ outlined on that page and do not file a public issue.
 * See the [project wiki](https://github.com/facebook/nuclide/wiki) for coding
 practices and development tips.
 
+## Running Tests
+Unit tests can be run from one of the feature directories (nuclide/pkg/\*) and
+running either `apm test` or `npm test` (depending on whether the package is
+an Atom or Node package).
+
+[fdescribe and fit](https://github.com/atom/jasmine-focused) (for running only
+a subset of tests) work with both runners.
+
 ## License
 By contributing to Nuclide, you agree that your contributions will be licensed
 under the license outlined in the LICENSE file in the same directory as this
