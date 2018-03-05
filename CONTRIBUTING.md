@@ -30,9 +30,9 @@ of the Nuclide repository. Please see the separate
 
 1. Fork the repo and create your branch from `master` for core changes, or
 `gh-pages` for docs and website changes.
-2. If you've added code that should be tested, add tests.
+2. If you've added code that should be tested, [add tests](https://github.com/facebook/nuclide/wiki/Writing-an-Integration-Test).
 3. If you've changed APIs, update the documentation.
-4. Ensure the test suite passes by running `scripts/test`.
+4. Ensure the test suite passes by [running `scripts/test`](https://github.com/facebook/nuclide/wiki/Tips-for-Testing).
 5. Make sure your JavaScript code lints by using Flow.
 6. If you haven't already, complete the Contributor License Agreement ("CLA").
 
@@ -55,14 +55,6 @@ outlined on that page and do not file a public issue.
 * 100 character line length
 * See the [project wiki](https://github.com/facebook/nuclide/wiki) for coding
 practices and development tips.
-
-## Running Tests
-Unit tests can be run from one of the feature directories (nuclide/pkg/\*) and
-running either `apm test` or `npm test` (depending on whether the package is
-an Atom or Node package).
-
-[fdescribe and fit](https://github.com/atom/jasmine-focused) (for running only
-a subset of tests) work with both runners.
 
 ## License
 By contributing to Nuclide, you agree that your contributions will be licensed
